@@ -2,7 +2,7 @@
 
 The contract for implementing Griddy without ambiguity. It derives from the model level and cites it by identifier instead of repeating it.
 
-- **Version:** 0.2
+- **Version:** 0.3
 - **Based on:** model v0.1 (`model.md`), Phase 1 spec v0.2 (`poc-spec.md`)
 - **Date:** 2026-10-24
 - **Status:** Draft, stage A (skeleton)
@@ -35,7 +35,7 @@ The contract for implementing Griddy without ambiguity. It derives from the mode
 
 | Pending | Blocks | Plan |
 |---|---|---|
-| P-01 | Completion of F-06 | Verify first with a minimal test page on the owner's phone; implement the fallback if it fails |
+| P-01 | Completion of F-06 | Verify first with a minimal test page on the owner's phone (`experiments/p01-share/`, T-03, T-04); implement the fallback if it fails |
 | P-03 | Nothing | Implement R-05 as written; placement is isolated in one function |
 | P-04 | Section 9 | Review when the project skeleton exists |
 | P-05 | Nothing | F-09 reports the actual result; backups mitigate |
@@ -58,6 +58,8 @@ Module layout (T-01):
 | `src/ui` | React components, theming (ADR-0013), accessibility. | `src/features`, `src/domain` |
 
 Dependencies point inward only: `ui → features → storage / platform → domain → config`. Lint rules enforce it.
+
+Throwaway experiments live outside `src/`, in `experiments/` (T-03).
 
 Libraries: decided in section 11 as they are chosen.
 
@@ -93,7 +95,7 @@ Pending (stage D). Approach in the [testing strategy](testing-strategy.md).
 
 ## 10. Implementation stages
 
-Pending (stage E). The first stage is the minimal test page that resolves P-01.
+Pending (stage E). The first stage is the minimal test page that resolves P-01 (`experiments/p01-share/`, T-03).
 
 ## 11. Technical decisions
 
@@ -112,6 +114,20 @@ Significant technical decisions are ADRs of type Technical (ADR-0002, ADR-0009).
 - **Decision:** parameters live in `src/config/parameters.ts` with the model's names; no literal values elsewhere in the code.
 - **Why:** one place to change a value; a test keeps it equal to the model.
 - **Alternatives:** values inline where used (drift and hidden duplicates).
+
+### T-03 · Experiments as self-contained pages in `experiments/`
+
+- **Origin:** CLAUDE.md working rules (experiments that resolve a `P-xx` stay out of `src/`)
+- **Decision:** each experiment lives in `experiments/<p-xx>-<slug>/` as a static page with no build step, no dependencies and no network calls, plus a README stating which pending item it resolves and how to run it. Values it borrows from the model (for example `EXPORT_WIDTH_PX`) are copies marked as such; the app never imports from `experiments/`. Once the result is recorded in the model, the folder is kept as a record or removed.
+- **Why:** an experiment can run on the owner's phone before the project skeleton exists, and cannot leak into the app.
+- **Alternatives:** a route inside the future app (needs the skeleton first, delaying P-01); a claude.ai artifact (Web Share inside a sandboxed frame is not guaranteed, and the URL is not owner-controlled, as in ADR-0009).
+
+### T-04 · Publish experiments on GitHub Pages before the app exists
+
+- **Origin:** ADR-0009, T-03
+- **Decision:** the `Pages` workflow publishes `experiments/` under `/experiments/` on GitHub Pages after the `Docs` workflow passes on a push to `main`. When the app's build pipeline exists it takes over the Pages deployment and decides whether experiments stay published.
+- **Why:** Web Share with files needs HTTPS; Pages is the hosting already decided and gives an owner-controlled URL at no cost.
+- **Alternatives:** a third-party proxy serving files from GitHub (an extra service for no gain); local network serving (no HTTPS, so sharing files is unavailable).
 
 ## 12. Traceability matrix
 
@@ -164,3 +180,4 @@ Every accepted ADR, every rule and every feature appears here. Planned locations
 |---|---|---|---|
 | 0.1 | 2026-10-23 | Stage A skeleton: scope, stack, structure, configuration, T-01 and T-02, traceability matrix | Based on model v0.1 and Phase 1 spec v0.1 |
 | 0.2 | 2026-10-24 | "Based on" updated to Phase 1 spec v0.2; no content change | Phase 1 spec approved |
+| 0.3 | 2026-10-24 | T-03 (experiments folder) and T-04 (experiments on GitHub Pages); P-01 plan and section 10 point to the test page | P-01 test page |
