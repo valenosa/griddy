@@ -39,7 +39,8 @@ The contract for implementing Griddy without ambiguity. It derives from the mode
 | P-03 | Nothing | Implement R-05 as written; placement is isolated in one function |
 | P-04 | Section 9 | Review when the project skeleton exists |
 | P-05 | Nothing | F-09 reports the actual result; backups mitigate |
-| P-06 | Nothing in Phase 1 | Re-check with S-02 before the API phase |
+| P-06 | Nothing (resolved) | Section 4 keeps the Aspect Ratio extensible |
+| P-07 | Nothing in Phase 1 | Verify before the API phase |
 
 - **Technical risk:** rendering up to `MAX_SLIDES` full-resolution photos for export may exhaust memory on mid-range phones. Mitigation: render Slides sequentially and release each bitmap before the next (detail in section 5, stage C).
 
@@ -72,7 +73,7 @@ Libraries: decided in section 11 as they are chosen.
 
 ## 4. Data structures
 
-Pending (stage B). Must cover Profile, Post, Slide, Photo, Crop, Snapshot and Theme (model section 5), with stable IDs and timestamps on every entity (ADR-0008).
+Pending (stage B). Must cover Profile, Post, Slide, Photo, Crop, Snapshot and Theme (model section 5), with stable IDs and timestamps on every entity (ADR-0008). The Post's Aspect Ratio must be a value set that can grow, for example with a per-Slide "Mixed" option (P-06), without reshaping stored data.
 
 ## 5. Components
 
@@ -184,4 +185,4 @@ Every accepted ADR, every rule and every feature appears here. Planned locations
 | 0.1 | 2026-10-23 | Stage A skeleton: scope, stack, structure, configuration, T-01 and T-02, traceability matrix | Based on model v0.1 and Phase 1 spec v0.1 |
 | 0.2 | 2026-10-24 | "Based on" updated to Phase 1 spec v0.2; no content change | Phase 1 spec approved |
 | 0.3 | 2026-10-24 | T-03 (experiments folder) and T-04 (experiments on GitHub Pages); P-01 plan and section 10 point to the test page | P-01 test page |
-| 0.4 | 2026-10-24 | Based on model v0.2 and Phase 1 spec v0.3: P-01 resolved, P-06 added to scope table, ADR-0014 and R-14 in the traceability matrix | P-01 resolved |
+| 0.4 | 2026-10-24 | Based on model v0.2 and Phase 1 spec v0.3: P-01 resolved, P-06 and P-07 in the scope table, extensible Aspect Ratio in section 4, ADR-0014 and R-14 in the traceability matrix | P-01 resolved |

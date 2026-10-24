@@ -37,4 +37,4 @@ Run on 2026-10-24 on the owner's Android phone (Chrome), recorded in the model d
 - Instagram opens it at Square (1:1). Choosing Portrait in its Ratio menu shows every 4:5 and 3:4 image whole, border included, for all Slides at once.
 - Share all with 11 or more images: Chrome rejects the share (`NotAllowedError`) before the share sheet opens.
 - Download numbered files: all 20 land in the Download folder, but the gallery's order is not reliable (`01.jpg` appeared last).
-- Instagram's Ratio menu also offers "Mixed" (P-06).
+- Instagram's Ratio menu also offers "Mixed": with photos shared from the gallery, a square, a landscape and a very tall screenshot each kept their own shape, the screenshot limited to a portrait frame (P-06).

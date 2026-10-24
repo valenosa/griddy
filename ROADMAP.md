@@ -22,6 +22,7 @@ Spec: [docs/poc-spec.md](docs/poc-spec.md)
 - Native share and file storage adapters
 
 ## Phase 3 — Instagram API (required for first stable release)
+- First verify which ratios the API accepts: it may reject 3:4, the default and most common shape (P-07 in the [model](docs/model.md))
 - Sync Published Posts from the real Profile
 - Publish directly from Griddy
 - Backend and cloud media hosting
@@ -35,3 +36,7 @@ Spec: [docs/poc-spec.md](docs/poc-spec.md)
 ## Phase 5 — Standalone video Posts
 ## Phase 6 — Reels
 ## Phase 7 — Multiple Profiles
+
+## Ideas (not scheduled)
+
+- Per-Slide shapes and landscape Slides, as Instagram's "Mixed" option allows (P-06 in the [model](docs/model.md)). Before scheduling: publish a mixed Carousel to see how the feed shows it, and check what the API accepts (P-07). Replaces ADR-0006 if adopted.

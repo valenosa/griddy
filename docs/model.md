@@ -90,7 +90,7 @@ The owner plans 6 Posts. The Grid shows them in two rows, newest at top-left. Th
 | ID | Assumption | Why | Effect if wrong |
 |---|---|---|---|
 | S-01 | Instagram's mobile profile grid shows each Post as a center-cropped thumbnail at `GRID_THUMBNAIL_RATIO`. | Platform behavior reported as of June 2026; desktop web still shows squares. | The Grid preview misleads; mitigated because the ratio is a parameter. |
-| S-02 | Instagram app Posts accept up to `MAX_SLIDES` Slides and the ratios 1:1, 4:5 and 3:4, and crop every Slide to the first Slide's ratio. The publishing API accepts at most 10 Slides and ratios from 4:5 to 1.91:1. | Platform documentation and guides, October 2026. The three app ratios were confirmed on the owner's phone (P-01 test, 2026-10-24). | Posts valid for Share Handoff may be rejected by the API; must be re-verified before the API phase. |
+| S-02 | Instagram app Posts accept up to `MAX_SLIDES` Slides and the ratios 1:1, 4:5 and 3:4, and crop every Slide to one shared ratio, except with the app's "Mixed" option, where each Slide keeps its own shape (landscape included) and very tall images are limited to a portrait frame. The publishing API accepts at most 10 Slides and ratios from 4:5 to 1.91:1, so it may reject 3:4 (P-07). | Platform documentation and guides, October 2026. The three app ratios and the "Mixed" option were checked on the owner's phone (P-01 test and P-06, 2026-10-24); the API limits are not verified. | Posts valid for Share Handoff may be rejected by the API; must be re-verified before the API phase. |
 | S-03 | The official API requires a professional (Creator or Business) account, a registered Meta app and media at a public URL. The owner's account is public and can switch to Creator. | Meta platform requirements. | The API phase is blocked or needs another approach. |
 | S-04 | Browser site data persists long term once persistent storage is granted, but is lost if the user clears site data or uninstalls the browser. | Browser storage behavior. | Data loss; mitigated by backups (F-10). |
 | S-05 | Instagram displays photos at most `EXPORT_WIDTH_PX` wide; larger uploads gain no visible quality. | Platform guidance. | Exports could be sharper; only `EXPORT_WIDTH_PX` changes. |
@@ -147,7 +147,7 @@ Each value is fixed here once. Code reads them from configuration (see SDD secti
 | Name | Value | Origin |
 |---|---|---|
 | `MAX_SLIDES` | 20 | S-02 |
-| `DEFAULT_ASPECT_RATIO` | 4:5 | ADR-0006; the tallest ratio also accepted by the API (S-02) |
+| `DEFAULT_ASPECT_RATIO` | 3:4 | ADR-0006; owner's choice: the shape of phone camera photos and of the Grid Thumbnail (S-01). The API may not accept it (P-07). |
 | `GRID_THUMBNAIL_RATIO` | 3:4 | S-01 |
 | `EXPORT_WIDTH_PX` | 1080 | S-05 |
 | `WEB_SHARE_MAX_FILES` | 10 | S-07 |
@@ -177,7 +177,8 @@ Decisions are recorded as ADRs in [docs/adr](adr/README.md), which holds the ind
 | P-03 | Confirm where a new Post is placed: top of the Grid (current) or next to the Next Post. | R-05, F-02 |
 | P-04 | Owner review of the testing strategy once the project skeleton exists. | SDD section 9 |
 | P-05 | Check persistent-storage behavior on the owner's phone and browser. | S-04, F-09 |
-| P-06 | Instagram's Ratio menu offers a "Mixed" option (seen in the P-01 test). Check whether Carousels can now keep a different ratio per Slide; if so, S-02 and ADR-0006 must be revisited. | S-02, ADR-0006 |
+| P-06 | Instagram's Ratio menu offers a "Mixed" option (seen in the P-01 test). Check whether Carousels can now keep a different ratio per Slide; if so, S-02 and ADR-0006 must be revisited. **Resolved 2026-10-24:** they can (S-02). ADR-0006 stays in force for Phase 1; per-Slide shapes are an unscheduled idea in [ROADMAP.md](../ROADMAP.md), and the data model must allow adding them (SDD section 4). | S-02, ADR-0006 |
+| P-07 | Before the Instagram API phase, verify which ratios the publishing API accepts. S-02 says 4:5 to 1.91:1, which would exclude 3:4, the `DEFAULT_ASPECT_RATIO` and the owner's usual shape: most of the owner's Posts could then not be published through the API and would keep using Share Handoff. Decide the scope of that phase with the answer. | S-02, ADR-0003, `DEFAULT_ASPECT_RATIO`, API phase |
 
 ### 10.2 Limitations
 
@@ -191,4 +192,4 @@ Decisions are recorded as ADRs in [docs/adr](adr/README.md), which holds the ind
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1 | 2026-10-23 | First version: summary, objectives, flow, assumptions, rules, parameters and pending items, consolidated from the planning session | Set up SDD documentation |
-| 0.2 | 2026-10-24 | P-01 resolved: S-07, S-08, R-14, `WEB_SHARE_MAX_FILES`, ADR-0014; S-02 origin updated; P-06 added; external dependencies and limitations updated | P-01 test on the owner's phone |
+| 0.2 | 2026-10-24 | P-01 resolved: S-07, S-08, R-14, `WEB_SHARE_MAX_FILES`, ADR-0014; S-02 origin updated; P-06 added and resolved ("Mixed" in S-02); P-07 added; `DEFAULT_ASPECT_RATIO` changed to 3:4; external dependencies and limitations updated | P-01 test on the owner's phone; owner's choice of default ratio |
