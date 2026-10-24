@@ -38,3 +38,4 @@ A change is done when the code, its tests, the documentation and the traceabilit
 - Do not start a next step without the owner's confirmation.
 - Code, docs and commits in English (ADR-0005). Talk to the owner in Spanish.
 - Commits follow [CONTRIBUTING.md](CONTRIBUTING.md): Conventional Commits with references, author `Valentín Rodrigo Osa Pochelú <83839175+valenosa@users.noreply.github.com>`, and no AI co-author trailers.
+- Never push to `main`: work on a branch and open a pull request for the owner to review and merge, as described in [CONTRIBUTING.md](CONTRIBUTING.md), section "Branches and pull requests".
