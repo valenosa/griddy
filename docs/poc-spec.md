@@ -2,9 +2,9 @@
 
 Features and acceptance criteria for Phase 1. Part of the model level: it says **what** the PoC does; rules, parameters and assumptions it cites live in the [model document](model.md).
 
-- **Version:** 0.1
-- **Date:** 2026-10-23
-- **Status:** Draft, pending owner approval
+- **Version:** 0.2
+- **Date:** 2026-10-24
+- **Status:** Approved
 
 ## Goal
 
@@ -125,3 +125,4 @@ P-01 (multi-photo share), P-03 (new Post placement), P-04 (testing review) and P
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1 | 2026-10-23 | Features renumbered F-01 to F-12; values replaced by parameter names; rules, risks and open questions moved to the model document and cited | Set up SDD documentation |
+| 0.2 | 2026-10-24 | Status set to Approved; no content change | Owner review |

@@ -1,0 +1,477 @@
+<!doctype html>
+<!--
+  Throwaway experiment for P-01 (model section 10): does Instagram accept several
+  images from the web share sheet as one Carousel, in order?
+  Related: ADR-0003 (Share Handoff), F-06, R-12 (Export Quality), T-03, T-04.
+  Self-contained: no build step, no dependencies, no network calls.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>P-01 Share Test</title>
+<style>
+  :root {
+    --bg: #f6f5f3;
+    --surface: #ffffff;
+    --text: #1c1b1a;
+    --muted: #63605c;
+    --border: #d9d6d1;
+    --accent: #b4441f;
+    --accent-text: #ffffff;
+    --ok: #2f6b3a;
+    --bad: #a3271f;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141312;
+      --surface: #1e1d1b;
+      --text: #ecebe8;
+      --muted: #a8a49e;
+      --border: #3a3835;
+      --accent: #e0754f;
+      --accent-text: #141312;
+      --ok: #7fc28b;
+      --bad: #f08a80;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 16px 16px 48px; }
+  h1 { font-size: 1.35rem; margin: 8px 0 4px; }
+  h2 { font-size: 1rem; margin: 0 0 12px; }
+  p { margin: 0 0 8px; }
+  .lead { color: var(--muted); margin-bottom: 16px; }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: .9rem; }
+  dt { color: var(--muted); }
+  dd { margin: 0; overflow-wrap: anywhere; }
+  .yes { color: var(--ok); font-weight: 600; }
+  .no { color: var(--bad); font-weight: 600; }
+  fieldset { border: 0; padding: 0; margin: 0 0 12px; }
+  legend { font-weight: 600; margin-bottom: 6px; font-size: .9rem; }
+  .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choices label {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 44px; padding: 0 12px;
+    border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+  }
+  .choices input { margin: 0; }
+  .choices label:has(input:checked) { border-color: var(--accent); outline: 1px solid var(--accent); }
+  label.field { display: block; margin-bottom: 12px; font-size: .9rem; }
+  label.field > span { display: block; font-weight: 600; margin-bottom: 4px; }
+  select, input[type="number"], input[type="file"], textarea {
+    font: inherit; color: inherit; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px;
+    min-height: 44px; padding: 8px; width: 100%;
+  }
+  textarea { min-height: 96px; resize: vertical; font-size: .8rem; font-family: ui-monospace, monospace; }
+  button {
+    font: inherit; font-weight: 600;
+    min-height: 44px; padding: 0 16px; width: 100%;
+    border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); cursor: pointer;
+    margin-bottom: 8px;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .strip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-top: 8px; }
+  .strip img { height: 72px; border-radius: 3px; flex: none; }
+  .status { font-size: .9rem; color: var(--muted); min-height: 1.45em; }
+  .hidden { display: none !important; }
+  ol.steps { margin: 0; padding-left: 20px; font-size: .9rem; }
+  ol.steps li { margin-bottom: 4px; }
+  .obs { display: grid; grid-template-columns: 1fr; gap: 0; }
+  @media (min-width: 520px) { .obs { grid-template-columns: 1fr 1fr; column-gap: 12px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>P-01 · Multi-photo share test</h1>
+  <p class="lead">Checks whether Instagram receives several photos from the web share sheet as one carousel, in order. Nothing leaves this phone except what you share.</p>
+
+  <section aria-labelledby="env-h">
+    <h2 id="env-h">This browser</h2>
+    <dl id="env"></dl>
+  </section>
+
+  <section aria-labelledby="setup-h">
+    <h2 id="setup-h">1. Prepare the photos</h2>
+    <fieldset>
+      <legend>Source</legend>
+      <div class="choices">
+        <label><input type="radio" name="source" value="generated" checked> Numbered test images</label>
+        <label><input type="radio" name="source" value="photos"> My photos</label>
+      </div>
+    </fieldset>
+    <label class="field" id="count-field"><span>Number of images</span>
+      <select id="count">
+        <option>2</option><option>3</option><option>5</option>
+        <option selected>10</option><option>11</option><option>20</option>
+      </select>
+    </label>
+    <label class="field hidden" id="photos-field"><span>Photos (each gets its number stamped, so order is easy to check)</span>
+      <input type="file" id="photos" accept="image/*" multiple>
+    </label>
+    <label class="field"><span>Aspect ratio</span>
+      <select id="ratio">
+        <option value="1:1">1:1 (1080 × 1080)</option>
+        <option value="4:5" selected>4:5 (1080 × 1350)</option>
+        <option value="3:4">3:4 (1080 × 1440)</option>
+      </select>
+    </label>
+    <button class="primary" id="prepare">Prepare images</button>
+    <p class="status" id="prepare-status" role="status"></p>
+    <div class="strip" id="strip" aria-label="Prepared images, in order"></div>
+  </section>
+
+  <section aria-labelledby="share-h">
+    <h2 id="share-h">2. Send them</h2>
+    <button class="primary" id="share-all" disabled>Share all</button>
+    <button id="share-next" disabled>Share one by one</button>
+    <button id="download" disabled>Download numbered files</button>
+    <p class="status" id="share-status" role="status"></p>
+  </section>
+
+  <section aria-labelledby="obs-h">
+    <h2 id="obs-h">3. What happened in Instagram?</h2>
+    <div class="obs">
+      <label class="field"><span>Instagram was in the share sheet</span>
+        <select data-q="Instagram in share sheet"><option>—</option><option>Yes</option><option>No</option></select>
+      </label>
+      <label class="field"><span>Instagram option chosen</span>
+        <select data-q="Instagram option chosen"><option>—</option><option>Feed</option><option>Stories</option><option>Chats</option><option>Other</option></select>
+      </label>
+      <label class="field"><span>Opened one post with all photos</span>
+        <select data-q="One post with all photos"><option>—</option><option>Yes</option><option>No</option><option>Partly</option></select>
+      </label>
+      <label class="field"><span>Photos in Instagram's editor</span>
+        <input type="number" min="0" inputmode="numeric" data-q="Photos in Instagram editor">
+      </label>
+      <label class="field"><span>Order was 1 → N</span>
+        <select data-q="Order kept"><option>—</option><option>Yes</option><option>No</option></select>
+      </label>
+      <label class="field"><span>Framing kept (border and TOP visible)</span>
+        <select data-q="Framing kept"><option>—</option><option>Yes</option><option>No</option></select>
+      </label>
+    </div>
+    <label class="field"><span>Notes</span>
+      <textarea data-q="Notes" placeholder="Anything unexpected: errors, extra crops, quality, steps Instagram asked for…"></textarea>
+    </label>
+  </section>
+
+  <section aria-labelledby="report-h">
+    <h2 id="report-h">4. Send the report</h2>
+    <button class="primary" id="copy">Copy report</button>
+    <p class="status" id="copy-status" role="status"></p>
+    <textarea id="report" readonly aria-label="Report"></textarea>
+  </section>
+
+  <section aria-labelledby="runs-h">
+    <h2 id="runs-h">Suggested runs</h2>
+    <ol class="steps">
+      <li>2 test images, Share all, pick Instagram Feed.</li>
+      <li>10 test images, Share all.</li>
+      <li>20 test images, Share all (Instagram's maximum in the app).</li>
+      <li>10 of your photos, Share all.</li>
+      <li>If Share all fails: Share one by one, then Download numbered files.</li>
+    </ol>
+    <p class="status">Copy the report after each run.</p>
+  </section>
+</main>
+
+<script>
+"use strict";
+
+const EXPORT_WIDTH_PX = 1080; // model section 7; experiment copy, not the app's config
+const JPEG_QUALITY = 0.92;
+const RATIOS = { "1:1": [1, 1], "4:5": [4, 5], "3:4": [3, 4] };
+
+const $ = (id) => document.getElementById(id);
+const log = [];
+let files = [];
+let thumbUrls = [];
+let nextIndex = 0;
+let prepared = null;
+
+function note(message) {
+  const time = new Date().toLocaleTimeString([], { hour12: false });
+  log.push(`${time}  ${message}`);
+  renderReport();
+}
+
+function yesNo(value) {
+  return `<span class="${value ? "yes" : "no"}">${value ? "Yes" : "No"}</span>`;
+}
+
+function probeFile() {
+  return new File([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], "probe.jpg", { type: "image/jpeg" });
+}
+
+const env = {
+  secure: window.isSecureContext,
+  share: typeof navigator.share === "function",
+  canShareFiles: false,
+  userAgent: navigator.userAgent,
+};
+try {
+  env.canShareFiles = typeof navigator.canShare === "function" && navigator.canShare({ files: [probeFile()] });
+} catch (e) {
+  env.canShareFiles = false;
+}
+
+$("env").innerHTML = `
+  <dt>Secure context</dt><dd>${yesNo(env.secure)}</dd>
+  <dt>Web Share</dt><dd>${yesNo(env.share)}</dd>
+  <dt>Can share files</dt><dd>${yesNo(env.canShareFiles)}</dd>
+  <dt>Browser</dt><dd>${env.userAgent.replace(/[<>&]/g, "")}</dd>`;
+
+function source() {
+  return document.querySelector('input[name="source"]:checked').value;
+}
+
+document.querySelectorAll('input[name="source"]').forEach((input) =>
+  input.addEventListener("change", () => {
+    const photos = source() === "photos";
+    $("count-field").classList.toggle("hidden", photos);
+    $("photos-field").classList.toggle("hidden", !photos);
+  })
+);
+
+function size(ratio) {
+  const [w, h] = RATIOS[ratio];
+  return [EXPORT_WIDTH_PX, Math.round((EXPORT_WIDTH_PX * h) / w)];
+}
+
+function drawFrame(ctx, w, h) {
+  const line = Math.round(w * 0.008);
+  ctx.strokeStyle = "rgba(255,255,255,0.9)";
+  ctx.lineWidth = line;
+  ctx.strokeRect(line / 2, line / 2, w - line, h - line);
+}
+
+function drawTestImage(ctx, w, h, i, n, ratio) {
+  const hue = Math.round(((i - 1) / n) * 330);
+  ctx.fillStyle = `hsl(${hue}, 45%, 38%)`;
+  ctx.fillRect(0, 0, w, h);
+  // Dashed square: what a 1:1 center crop would keep.
+  const side = Math.min(w, h);
+  ctx.setLineDash([w * 0.02, w * 0.02]);
+  ctx.strokeStyle = "rgba(255,255,255,0.35)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect((w - side) / 2, (h - side) / 2, side, side);
+  ctx.setLineDash([]);
+  drawFrame(ctx, w, h);
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `700 ${Math.round(w * 0.05)}px system-ui, sans-serif`;
+  ctx.fillText("TOP", w / 2, w * 0.06);
+  ctx.fillText("BOTTOM", w / 2, h - w * 0.06);
+  ctx.font = `700 ${Math.round(w * 0.42)}px system-ui, sans-serif`;
+  ctx.fillText(String(i), w / 2, h / 2);
+  ctx.font = `500 ${Math.round(w * 0.045)}px system-ui, sans-serif`;
+  ctx.fillText(`${i} of ${n} · ${ratio} · ${w}×${h}`, w / 2, h / 2 + w * 0.3);
+}
+
+async function drawPhoto(ctx, w, h, file, i) {
+  const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  try {
+    // Center crop that covers the whole frame, as R-03 requires.
+    const scale = Math.max(w / bitmap.width, h / bitmap.height);
+    const dw = bitmap.width * scale;
+    const dh = bitmap.height * scale;
+    ctx.drawImage(bitmap, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  } finally {
+    bitmap.close();
+  }
+  const badge = Math.round(w * 0.14);
+  ctx.fillStyle = "rgba(0,0,0,0.6)";
+  ctx.fillRect(w * 0.03, w * 0.03, badge, badge);
+  ctx.fillStyle = "#ffffff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `700 ${Math.round(badge * 0.6)}px system-ui, sans-serif`;
+  ctx.fillText(String(i), w * 0.03 + badge / 2, w * 0.03 + badge / 2);
+}
+
+function toJpeg(canvas) {
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("toBlob returned null"))), "image/jpeg", JPEG_QUALITY)
+  );
+}
+
+function setShareButtons(enabled) {
+  $("share-all").disabled = !enabled;
+  $("share-next").disabled = !enabled;
+  $("download").disabled = !enabled;
+}
+
+function updateNextLabel() {
+  $("share-next").textContent = files.length
+    ? `Share one by one (${Math.min(nextIndex + 1, files.length)} of ${files.length})`
+    : "Share one by one";
+}
+
+async function prepare() {
+  const ratio = $("ratio").value;
+  const [w, h] = size(ratio);
+  const fromPhotos = source() === "photos";
+  const picked = fromPhotos ? Array.from($("photos").files) : [];
+  const n = fromPhotos ? picked.length : Number($("count").value);
+  if (fromPhotos && n === 0) {
+    $("prepare-status").textContent = "Pick at least one photo first.";
+    return;
+  }
+
+  $("prepare").disabled = true;
+  setShareButtons(false);
+  thumbUrls.forEach((url) => URL.revokeObjectURL(url));
+  thumbUrls = [];
+  files = [];
+  $("strip").replaceChildren();
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  const started = performance.now();
+  try {
+    for (let i = 1; i <= n; i++) {
+      $("prepare-status").textContent = `Rendering ${i} of ${n}…`;
+      ctx.clearRect(0, 0, w, h);
+      if (fromPhotos) await drawPhoto(ctx, w, h, picked[i - 1], i);
+      else drawTestImage(ctx, w, h, i, n, ratio);
+      const blob = await toJpeg(canvas);
+      const name = `${String(i).padStart(2, "0")}.jpg`;
+      files.push(new File([blob], name, { type: "image/jpeg", lastModified: Date.now() }));
+      const url = URL.createObjectURL(blob);
+      thumbUrls.push(url);
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = name;
+      $("strip").append(img);
+    }
+  } catch (e) {
+    $("prepare-status").textContent = `Rendering failed: ${e.name}: ${e.message}`;
+    note(`prepare failed at image ${files.length + 1}: ${e.name}: ${e.message}`);
+    $("prepare").disabled = false;
+    return;
+  }
+  const ms = Math.round(performance.now() - started);
+  const bytes = files.reduce((sum, f) => sum + f.size, 0);
+  const weight = bytes < 1048576 ? `${Math.round(bytes / 1024)} KB` : `${(bytes / 1048576).toFixed(1)} MB`;
+  prepared = { source: fromPhotos ? "my photos" : "test images", count: n, ratio, w, h, ms, weight };
+  nextIndex = 0;
+  updateNextLabel();
+  $("prepare-status").textContent = `${n} JPEGs, ${w}×${h}, ${weight} in ${ms} ms.`;
+  note(`prepared ${n} ${prepared.source}, ${ratio} ${w}x${h}, ${weight}, ${ms} ms`);
+  $("prepare").disabled = false;
+  setShareButtons(true);
+}
+
+async function share(subset, label) {
+  const data = { files: subset };
+  let allowed = false;
+  try {
+    allowed = typeof navigator.canShare === "function" && navigator.canShare(data);
+  } catch (e) {
+    note(`${label}: canShare threw ${e.name}: ${e.message}`);
+  }
+  if (!allowed) {
+    $("share-status").textContent = `${label}: this browser refuses to share these files.`;
+    note(`${label}: canShare false`);
+    return false;
+  }
+  try {
+    await navigator.share(data);
+    $("share-status").textContent = `${label}: handed to the chosen app.`;
+    note(`${label}: share resolved`);
+    return true;
+  } catch (e) {
+    $("share-status").textContent = `${label}: ${e.name === "AbortError" ? "cancelled" : "failed"} (${e.name}).`;
+    note(`${label}: share rejected ${e.name}: ${e.message}`);
+    return false;
+  }
+}
+
+$("prepare").addEventListener("click", prepare);
+
+$("share-all").addEventListener("click", () => share(files, `share all ${files.length}`));
+
+$("share-next").addEventListener("click", async () => {
+  if (nextIndex >= files.length) nextIndex = 0;
+  const label = `share ${nextIndex + 1} of ${files.length}`;
+  if (await share([files[nextIndex]], label)) nextIndex++;
+  if (nextIndex >= files.length) {
+    $("share-status").textContent += " All sent; next tap starts again.";
+  }
+  updateNextLabel();
+});
+
+$("download").addEventListener("click", async () => {
+  for (const file of files) {
+    const a = document.createElement("a");
+    const url = URL.createObjectURL(file);
+    a.href = url;
+    a.download = file.name;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    await new Promise((resolve) => setTimeout(resolve, 400));
+  }
+  $("share-status").textContent = `Download started for ${files.length} files.`;
+  note(`download ${files.length} files`);
+});
+
+document.querySelectorAll("[data-q]").forEach((el) => el.addEventListener("input", renderReport));
+
+function renderReport() {
+  const lines = [
+    "Griddy P-01 share test",
+    `Date: ${new Date().toISOString()}`,
+    `Page: ${location.href}`,
+    `Browser: ${env.userAgent}`,
+    `Secure context: ${env.secure}; Web Share: ${env.share}; can share files: ${env.canShareFiles}`,
+    prepared
+      ? `Last set: ${prepared.count} ${prepared.source}, ${prepared.ratio} ${prepared.w}x${prepared.h}, ${prepared.weight}`
+      : "Last set: none",
+    "",
+    "Observations:",
+  ];
+  document.querySelectorAll("[data-q]").forEach((el) => {
+    lines.push(`- ${el.dataset.q}: ${el.value.trim() || "—"}`);
+  });
+  lines.push("", "Log:", ...(log.length ? log : ["(empty)"]));
+  $("report").value = lines.join("\n");
+}
+
+$("copy").addEventListener("click", async () => {
+  renderReport();
+  try {
+    await navigator.clipboard.writeText($("report").value);
+    $("copy-status").textContent = "Copied. Paste it in the chat.";
+  } catch (e) {
+    $("report").select();
+    $("copy-status").textContent = "Could not copy automatically; the text is selected below.";
+  }
+});
+
+renderReport();
+</script>
+</body>
+</html>
