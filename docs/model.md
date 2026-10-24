@@ -2,8 +2,8 @@
 
 What Griddy is, what it must do and why. How it is built lives in the [SDD](sdd.md).
 
-- **Version:** 0.1
-- **Date:** 2026-10-23
+- **Version:** 0.2
+- **Date:** 2026-10-24
 - **Status:** Draft
 - **Authors:** Valentín Rodrigo Osa Pochelú
 
@@ -62,7 +62,7 @@ Phases and their content are in [ROADMAP.md](../ROADMAP.md). The current phase i
 1. The user taps "New post" and selects one or more photos; Griddy creates a Post at the top of the Grid (R-05).
 2. In the Post editor the user reorders, adds, removes or replaces Slides, picks the Aspect Ratio and reframes each Slide (R-02, R-03).
 3. In the Grid the user drags Posts until the layout looks right.
-4. When it is time to publish, Griddy marks the Next Post (R-06). The user shares it; Griddy renders the Slides at Export Quality (R-12) and opens the share sheet.
+4. When it is time to publish, Griddy marks the Next Post (R-06). The user shares it; Griddy renders the Slides at Export Quality (R-12) and opens the share sheet, or offers numbered downloads when the Post is too large to share (R-14).
 5. Back in Griddy, the user confirms the Post was published (R-07).
 
 ### 2.2 Post lifecycle
@@ -90,19 +90,21 @@ The owner plans 6 Posts. The Grid shows them in two rows, newest at top-left. Th
 | ID | Assumption | Why | Effect if wrong |
 |---|---|---|---|
 | S-01 | Instagram's mobile profile grid shows each Post as a center-cropped thumbnail at `GRID_THUMBNAIL_RATIO`. | Platform behavior reported as of June 2026; desktop web still shows squares. | The Grid preview misleads; mitigated because the ratio is a parameter. |
-| S-02 | Instagram app Posts accept up to `MAX_SLIDES` Slides and the ratios 1:1, 4:5 and 3:4, and crop every Slide to the first Slide's ratio. The publishing API accepts at most 10 Slides and ratios from 4:5 to 1.91:1. | Platform documentation and guides, October 2026. | Posts valid for Share Handoff may be rejected by the API; must be re-verified before the API phase. |
+| S-02 | Instagram app Posts accept up to `MAX_SLIDES` Slides and the ratios 1:1, 4:5 and 3:4, and crop every Slide to one shared ratio, except with the app's "Mixed" option, where each Slide keeps its own shape (landscape included) and very tall images are limited to a portrait frame. The publishing API accepts at most 10 Slides and ratios from 4:5 to 1.91:1, so it may reject 3:4 (P-07). | Platform documentation and guides, October 2026. The three app ratios and the "Mixed" option were checked on the owner's phone (P-01 test and P-06, 2026-10-24); the API limits are not verified. | Posts valid for Share Handoff may be rejected by the API; must be re-verified before the API phase. |
 | S-03 | The official API requires a professional (Creator or Business) account, a registered Meta app and media at a public URL. The owner's account is public and can switch to Creator. | Meta platform requirements. | The API phase is blocked or needs another approach. |
 | S-04 | Browser site data persists long term once persistent storage is granted, but is lost if the user clears site data or uninstalls the browser. | Browser storage behavior. | Data loss; mitigated by backups (F-10). |
 | S-05 | Instagram displays photos at most `EXPORT_WIDTH_PX` wide; larger uploads gain no visible quality. | Platform guidance. | Exports could be sharper; only `EXPORT_WIDTH_PX` changes. |
 | S-06 | The owner has no published posts today. | Stated by the owner. | Justifies postponing import of Published Posts (ADR-0007). |
+| S-07 | Chrome on Android shares at most `WEB_SHARE_MAX_FILES` files at once and rejects larger shares. Native Android sharing has no such limit. | P-01 test on the owner's phone, 2026-10-24: 10 files shared, 11 rejected. | Large Posts could be shared directly; only `WEB_SHARE_MAX_FILES` changes. |
+| S-08 | Instagram (Android) receives files shared together as one Carousel in the shared order. It opens them at Square (1:1); choosing Portrait in its Ratio menu shows 4:5 and 3:4 Slides uncropped, for all Slides at once. | P-01 test on the owner's phone, 2026-10-24. | Share Handoff would need the one-by-one or download fallbacks for every Post. |
 
 ## 4. External dependencies
 
 | Dependency | Used for | Status |
 |---|---|---|
-| Instagram app (Android) | Receives Shared Slides and publishes | Behavior with multiple shared images pending (P-01) |
+| Instagram app (Android) | Receives Shared Slides and publishes | One Carousel, in order (S-08) |
 | Browser storage (IndexedDB, persistent storage) | All local data | S-04 |
-| Web Share API with files | Share Handoff | Supported on Chrome for Android; desktop falls back to downloads |
+| Web Share API with files | Share Handoff | Supported on Chrome for Android up to `WEB_SHARE_MAX_FILES` files (S-07); desktop falls back to downloads (R-14) |
 | Instagram API (later phase) | Sync and direct publishing | S-02, S-03 |
 
 ## 5. Domain elements
@@ -136,6 +138,7 @@ Terms are defined in the [glossary](../CONTEXT.md). Main entities and their prod
 | R-11 | A Photo is deleted only when no Post, Trashed Post or Snapshot references it. | ADR-0010 |
 | R-12 | Export Quality renders each Slide from Photo and Crop at `EXPORT_WIDTH_PX` wide and the height given by the Aspect Ratio, in Slide order. | S-05 |
 | R-13 | The Grid Thumbnail of a Post is a center crop of its Cover at `GRID_THUMBNAIL_RATIO`. | S-01 |
+| R-14 | Share Handoff sends all Slides of a Post in one share when it has at most `WEB_SHARE_MAX_FILES` Slides. Otherwise, or where the browser cannot share files, Griddy says why and offers the Slides as downloads numbered in Slide order. | ADR-0014 |
 
 ## 7. Parameters
 
@@ -144,9 +147,10 @@ Each value is fixed here once. Code reads them from configuration (see SDD secti
 | Name | Value | Origin |
 |---|---|---|
 | `MAX_SLIDES` | 20 | S-02 |
-| `DEFAULT_ASPECT_RATIO` | 4:5 | ADR-0006; the tallest ratio also accepted by the API (S-02) |
+| `DEFAULT_ASPECT_RATIO` | 3:4 | ADR-0006; owner's choice: the shape of phone camera photos and of the Grid Thumbnail (S-01). The API may not accept it (P-07). |
 | `GRID_THUMBNAIL_RATIO` | 3:4 | S-01 |
 | `EXPORT_WIDTH_PX` | 1080 | S-05 |
+| `WEB_SHARE_MAX_FILES` | 10 | S-07 |
 | `UNDO_WINDOW_SECONDS` | 5 | ADR-0010; long enough to react, short enough not to block |
 | `TRASH_RETENTION_DAYS` | 30 | ADR-0010; owner's choice |
 | `HISTORY_RETENTION_DAYS` | 30 | ADR-0010; aligned with the Trash |
@@ -168,19 +172,24 @@ Decisions are recorded as ADRs in [docs/adr](adr/README.md), which holds the ind
 
 | ID | Pending | Affects |
 |---|---|---|
-| P-01 | Verify on the owner's phone that Instagram accepts several images from the web share sheet as one Carousel and keeps their order. Fallbacks: share one by one in order, or numbered downloads. | F-06, ADR-0003 |
+| P-01 | Verify on the owner's phone that Instagram accepts several images from the web share sheet as one Carousel and keeps their order. Fallbacks: share one by one in order, or numbered downloads. **Resolved 2026-10-24:** it does (S-08), up to the browser's limit (S-07); see ADR-0014. | F-06, ADR-0003 |
 | P-02 | Choose the distribution model: open-source self-hosted, paid hosted product, or open core. | ADR-0008, API phase |
 | P-03 | Confirm where a new Post is placed: top of the Grid (current) or next to the Next Post. | R-05, F-02 |
 | P-04 | Owner review of the testing strategy once the project skeleton exists. | SDD section 9 |
 | P-05 | Check persistent-storage behavior on the owner's phone and browser. | S-04, F-09 |
+| P-06 | Instagram's Ratio menu offers a "Mixed" option (seen in the P-01 test). Check whether Carousels can now keep a different ratio per Slide; if so, S-02 and ADR-0006 must be revisited. **Resolved 2026-10-24:** they can (S-02). ADR-0006 stays in force for Phase 1; per-Slide shapes are an unscheduled idea in [ROADMAP.md](../ROADMAP.md), and the data model must allow adding them (SDD section 4). | S-02, ADR-0006 |
+| P-07 | Before the Instagram API phase, verify which ratios the publishing API accepts. S-02 says 4:5 to 1.91:1, which would exclude 3:4, the `DEFAULT_ASPECT_RATIO` and the owner's usual shape: most of the owner's Posts could then not be published through the API and would keep using Share Handoff. Decide the scope of that phase with the answer. | S-02, ADR-0003, `DEFAULT_ASPECT_RATIO`, API phase |
 
 ### 10.2 Limitations
 
 - Posts published outside Griddy are invisible until the API phase (ADR-0007); the plan can drift from the real Profile if the user publishes elsewhere.
 - The preview cannot reproduce Instagram's own compression after upload; it shows Export Quality.
+- On the web, Posts with more than `WEB_SHARE_MAX_FILES` Slides are published from numbered downloads, ordered by hand in Instagram (ADR-0014), until the APK phase.
+- Instagram opens shared Slides at Square; for 4:5 and 3:4 Posts the user chooses Portrait once in Instagram (S-08).
 
 ## 11. Changes
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1 | 2026-10-23 | First version: summary, objectives, flow, assumptions, rules, parameters and pending items, consolidated from the planning session | Set up SDD documentation |
+| 0.2 | 2026-10-24 | P-01 resolved: S-07, S-08, R-14, `WEB_SHARE_MAX_FILES`, ADR-0014; S-02 origin updated; P-06 added and resolved ("Mixed" in S-02); P-07 added; `DEFAULT_ASPECT_RATIO` changed to 3:4; external dependencies and limitations updated | P-01 test on the owner's phone; owner's choice of default ratio |

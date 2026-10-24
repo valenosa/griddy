@@ -4,12 +4,11 @@ A mobile-first planner for your Instagram grid. Arrange posts, build carousels, 
 
 ## Status
 
-Phase 1 (web PoC): the [Phase 1 spec](docs/poc-spec.md) is approved; implementation has not started.
+Phase 1 (web PoC): the [Phase 1 spec](docs/poc-spec.md) is approved; implementation has not started. Sharing to Instagram was verified on the owner's phone ([P-01 test](experiments/p01-share/README.md), ADR-0014).
 
 Next steps, in order:
 
-1. The owner runs the [P-01 test page](experiments/p01-share/README.md) on the phone to check whether Instagram accepts several shared photos as one carousel, in order (P-01 in the [model](docs/model.md)); the result is then recorded in the model.
-2. SDD stage B: data structures, core components and invariants ([SDD](docs/sdd.md)), with owner review.
+1. SDD stage B: data structures, core components and invariants ([SDD](docs/sdd.md)), with owner review.
 
 ## Highlights (Phase 1)
 
