@@ -19,7 +19,7 @@ Domain language of **Griddy**. Code, docs and UI use these terms with exactly th
 | **Publish Order** | Planned Posts are published bottom-up, starting with the Next Post, because Instagram places the newest post at top-left. | R-06 |
 | **Published Post** | A Post that exists on Instagram. Not editable or movable. | R-05, ADR-0007 |
 | **Replace** | Swapping a Slide's photo for another, for example an edited version, keeping its position and Crop. | F-03 |
-| **Share Handoff** | Sending a Planned Post's Slides, in order and at Export Quality, to the Android share sheet. | ADR-0003 |
+| **Share Handoff** | Sending a Planned Post's Slides, in order and at Export Quality, to the Android share sheet. | ADR-0003, R-14 |
 | **Slide** | One media item inside a Post. Photos only in Phase 1. | ADR-0001 |
 | **Snapshot** | A saved state of a Post, recorded on every change, that can be restored. | R-10 |
 | **Theme** | A named set of color tokens with light and dark variants. | ADR-0013 |

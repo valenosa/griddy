@@ -2,7 +2,7 @@
 
 Features and acceptance criteria for Phase 1. Part of the model level: it says **what** the PoC does; rules, parameters and assumptions it cites live in the [model document](model.md).
 
-- **Version:** 0.2
+- **Version:** 0.3
 - **Date:** 2026-10-24
 - **Status:** Approved
 
@@ -13,7 +13,7 @@ Plan an Instagram Grid of photo Posts and Carousels on an Android phone, see an 
 ## Target platforms
 
 - **Primary:** latest two versions of Chrome on Android (ADR-0012).
-- **Supported:** latest desktop Chrome, Firefox and Safari. Where the share sheet is unavailable, Share Handoff falls back to downloading the files.
+- **Supported:** latest desktop Chrome, Firefox and Safari. Where the share sheet is unavailable, Share Handoff falls back to downloading the files (R-14).
 
 ---
 
@@ -61,10 +61,11 @@ Plan an Instagram Grid of photo Posts and Carousels on an Android phone, see an 
 
 ### F-06 · Share Handoff and publishing state
 
-- "Share" on a Planned Post renders every Slide at Export Quality (R-12) as high-quality sRGB JPEG and opens the share sheet with all files.
-- Fallback: download the files numbered in Slide order (`01.jpg`, `02.jpg`…).
+- "Share" on a Planned Post renders every Slide at Export Quality (R-12) as high-quality sRGB JPEG and opens the share sheet with all files, within R-14.
+- Above `WEB_SHARE_MAX_FILES` Slides, or without file sharing, Griddy explains why and downloads the files numbered in Slide order (`01.jpg`, `02.jpg`…), per R-14 and ADR-0014.
+- For 4:5 and 3:4 Posts, the share action carries a short reminder to choose Portrait in Instagram's Ratio menu, because Instagram opens shared Slides at Square (S-08).
 - On return, Griddy asks whether the Post was published and applies R-07. "Mark as planned" reverts it.
-- **Done when** a 10-Slide Carousel reaches Instagram's composer with all photos in the correct order (pending P-01).
+- **Done when** a Carousel of `WEB_SHARE_MAX_FILES` Slides reaches Instagram's composer with all photos in the correct order (S-08), and a larger Post produces the numbered downloads.
 
 ### F-07 · Delete, Undo and Trash
 
@@ -118,7 +119,7 @@ Video and Reels (ADR-0001), Instagram API sync and publishing (ADR-0003), import
 
 ## Pending items that affect this phase
 
-P-01 (multi-photo share), P-03 (new Post placement), P-04 (testing review) and P-05 (storage persistence), described in the [model document](model.md), section 10.
+P-03 (new Post placement), P-04 (testing review) and P-05 (storage persistence), described in the [model document](model.md), section 10.
 
 ## Changes
 
@@ -126,3 +127,4 @@ P-01 (multi-photo share), P-03 (new Post placement), P-04 (testing review) and P
 |---|---|---|---|
 | 0.1 | 2026-10-23 | Features renumbered F-01 to F-12; values replaced by parameter names; rules, risks and open questions moved to the model document and cited | Set up SDD documentation |
 | 0.2 | 2026-10-24 | Status set to Approved; no content change | Owner review |
+| 0.3 | 2026-10-24 | F-06 follows R-14 and ADR-0014 (share up to `WEB_SHARE_MAX_FILES`, numbered downloads above) and reminds the user to choose Portrait for 4:5 and 3:4 Posts (S-08); P-01 removed from pending items | P-01 resolved |

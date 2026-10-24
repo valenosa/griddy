@@ -19,6 +19,7 @@ Every significant decision about Griddy is recorded here, one file per decision.
 | [ADR-0011](0011-installable-pwa.md) | Ship the web app as an installable PWA | Product | Accepted |
 | [ADR-0012](0012-mobile-first.md) | Mobile-first, desktop supported | Product | Accepted |
 | [ADR-0013](0013-theming-with-design-tokens.md) | Theming through design tokens | Product | Accepted |
+| [ADR-0014](0014-web-share-limit-numbered-downloads.md) | Web Share Handoff up to the browser's file limit, numbered downloads above it | Product | Accepted |
 
 `python tools/verify_docs.py` checks that this index matches the files.
 
