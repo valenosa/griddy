@@ -2,9 +2,9 @@
 
 The contract for implementing Griddy without ambiguity. It derives from the model level and cites it by identifier instead of repeating it.
 
-- **Version:** 0.1
-- **Based on:** model v0.1 (`model.md`), Phase 1 spec v0.1 (`poc-spec.md`)
-- **Date:** 2026-10-23
+- **Version:** 0.2
+- **Based on:** model v0.1 (`model.md`), Phase 1 spec v0.2 (`poc-spec.md`)
+- **Date:** 2026-10-24
 - **Status:** Draft, stage A (skeleton)
 
 ## 0. How to use this document
@@ -163,3 +163,4 @@ Every accepted ADR, every rule and every feature appears here. Planned locations
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1 | 2026-10-23 | Stage A skeleton: scope, stack, structure, configuration, T-01 and T-02, traceability matrix | Based on model v0.1 and Phase 1 spec v0.1 |
+| 0.2 | 2026-10-24 | "Based on" updated to Phase 1 spec v0.2; no content change | Phase 1 spec approved |
