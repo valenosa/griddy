@@ -38,12 +38,14 @@ Plan an Instagram grid of photo Posts and Carousels on an Android phone, see an 
 - Share a single Slide's **original** photo to another app (e.g. Snapseed).
 - Switch Aspect Ratio between 1:1, 4:5 and 3:4; every Slide follows (ADR-0006).
 - Removing the last Slide deletes the Post (to Trash).
+- Slides are previewed at Export Quality (1080 px wide, rendered from original + Crop), so the editor shows what Instagram will show. The original is used only for reframing and for sharing the original to other apps.
 - **Done when** every action above is reachable with one hand on a 6" screen and is reflected immediately in the Grid.
 
 ### F4 — Reframe a Slide
 - Opens from the editor. Drag to position, pinch to zoom; desktop uses drag + wheel/slider.
 - The photo always covers the frame (no empty edges).
 - The Crop is stored per Aspect Ratio; switching ratio and back restores it.
+- Rotate in 90° steps. The Crop model stores rotation in degrees from day one, so free-angle straightening (later phase) needs no data migration.
 
 ### F5 — Reorder the Grid
 - Long-press a Post and drag it to a new position.
@@ -75,6 +77,7 @@ Plan an Instagram grid of photo Posts and Carousels on an Android phone, see an 
 ### F10 — Backup
 - "Export backup" produces one file containing all data and original photos.
 - "Import backup" restores it, replacing current data after one confirmation.
+- A backup made on one device can be imported on any other device running Griddy (e.g. phone → desktop via Google Drive). This is a copy, not sync: later changes on either device do not merge.
 - **Done when** export → clear site data → import yields an identical Grid, Trash and history.
 
 ### F11 — Themes (ADR-0013)

@@ -24,8 +24,9 @@ Preliminary. Each phase ends in a usable release.
 - Backend and cloud media hosting
 - Flag Posts that the API cannot publish (3:4, more than 10 Slides)
 
-## Phase 3.5 — Custom themes
+## Phase 3.5 — Editing and personalization
 - Theme editor with contrast validation, save and share themes
+- Free-angle straightening (slider, alignment grid, automatic zoom to cover the frame)
 
 ## Phase 4 — Video inside Carousels
 ## Phase 5 — Standalone video Posts
