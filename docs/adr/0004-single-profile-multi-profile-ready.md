@@ -2,11 +2,22 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-23
+- **Type:** Product
+
+## Context
+
+The owner plans one account today. Managing several accounts is a likely future need (creators, small businesses, a hosted product).
+
+## Alternatives considered
+
+- **Multi-profile UI from the start.** Rejected: extra screens and states with no current user need.
+- **No Profile entity at all.** Rejected: adding it later would require migrating every stored Post.
 
 ## Decision
 
-The PoC plans one Profile. `Profile` exists as an entity and every Post belongs to one, so multi-profile support is a UI change, not a data migration.
+The PoC plans exactly one Profile, but `Profile` exists as an entity and every Post belongs to one.
 
 ## Consequences
 
-- Roadmap includes a "multiple Profiles" milestone.
+- Multi-profile support becomes a UI change, not a data migration.
+- [ROADMAP.md](../../ROADMAP.md) includes a multiple-Profiles phase.

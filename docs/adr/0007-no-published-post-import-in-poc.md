@@ -2,10 +2,16 @@
 
 - **Status:** Accepted
 - **Date:** 2026-10-23
+- **Type:** Product
 
 ## Context
 
-Showing the real, already-published grid is essential: without it the plan can drift from the actual Profile. The only legitimate way to read it is the official Instagram API. The owner currently has no published posts, so in the PoC everything planned is new.
+Showing the real, already-published grid is essential: without it the plan drifts from the actual Profile. The only legitimate way to read it is the official Instagram API (ADR-0003). The owner currently has no published posts, so everything planned in the PoC is new.
+
+## Alternatives considered
+
+- **Manual upload of already-published photos.** Rejected for the PoC: no current need, and it would be thrown away once API sync exists.
+- **Scraping the public profile.** Rejected: breaks Instagram's terms (ADR-0003).
 
 ## Decision
 
@@ -16,4 +22,4 @@ Showing the real, already-published grid is essential: without it the plan can d
 ## Consequences
 
 - Posts published outside Griddy are invisible until the API phase.
-- Scraping and unofficial APIs are rejected (ADR-0003).
+- Publish Order and Next Post rely on the user confirming publications (R-05, R-06).

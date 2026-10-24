@@ -1,8 +1,11 @@
 # Roadmap
 
-Preliminary. Each phase ends in a usable release.
+Preliminary. Each phase ends in a usable release and gets its own spec before implementation.
 
 ## Phase 1 — Web PoC
+
+Spec: [docs/poc-spec.md](docs/poc-spec.md)
+
 - Grid with long-press drag reordering
 - Photo Posts and Carousels: add, remove and reorder Slides
 - Aspect Ratio per Post (1:1, 4:5, 3:4) with non-destructive Crop
@@ -10,7 +13,7 @@ Preliminary. Each phase ends in a usable release.
 - Next Post indicator and Share Handoff at Export Quality
 - Local storage with persistent-storage request
 - Backup export / import
-- Trash (30 days) and per-Post history
+- Undo, Trash and per-Post history
 - Installable PWA, mobile-first layout with desktop support
 - Darkroom theme (light + dark) plus one built-in alternative, theme picker
 
@@ -22,7 +25,7 @@ Preliminary. Each phase ends in a usable release.
 - Sync Published Posts from the real Profile
 - Publish directly from Griddy
 - Backend and cloud media hosting
-- Flag Posts that the API cannot publish (3:4, more than 10 Slides)
+- Flag Posts that the API cannot publish (S-02)
 
 ## Phase 3.5 — Editing and personalization
 - Theme editor with contrast validation, save and share themes

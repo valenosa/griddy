@@ -1,12 +1,14 @@
-# Phase 1 — Web PoC Specification
+# Phase 1 Spec — Web PoC
 
-- **Status:** Draft, pending owner approval
+Features and acceptance criteria for Phase 1. Part of the model level: it says **what** the PoC does; rules, parameters and assumptions it cites live in the [model document](model.md).
+
+- **Version:** 0.1
 - **Date:** 2026-10-23
-- Terms follow [CONTEXT.md](../CONTEXT.md). Decisions are referenced by ADR number.
+- **Status:** Draft, pending owner approval
 
 ## Goal
 
-Plan an Instagram grid of photo Posts and Carousels on an Android phone, see an accurate preview, and hand each Post to Instagram at full quality without searching the gallery again.
+Plan an Instagram Grid of photo Posts and Carousels on an Android phone, see an accurate preview, and hand each Post to Instagram at Export Quality without searching the gallery again.
 
 ## Target platforms
 
@@ -15,78 +17,89 @@ Plan an Instagram grid of photo Posts and Carousels on an Android phone, see an 
 
 ---
 
-## Features and acceptance criteria
+## Features
 
-### F1 — Grid
-- Shows all Posts of the Profile in 3 columns with Instagram's mobile 3:4 Grid Thumbnails and spacing, newest at top-left.
+### F-01 · Grid
+
+- Shows all Posts of the Profile as Grid Thumbnails (R-13), three per row with Instagram's spacing, in Grid order (R-05).
 - Carousels show a multi-photo badge.
-- The Next Post (lowest Planned Post, ADR-0007) is highlighted.
-- Published Posts appear below Planned Posts and are visually distinguished and locked.
-- Header shows counts of Planned and Published Posts.
-- **Done when** a grid of 60 Posts renders and scrolls smoothly on a mid-range Android phone.
+- The Next Post (R-06) is highlighted.
+- Published Posts are visually distinguished and locked (R-05).
+- The header shows counts of Planned and Published Posts.
+- **Done when** a Grid of 60 Posts renders and scrolls smoothly on a mid-range Android phone.
 
-### F2 — Create a Post
-- "New post" opens the photo picker with multi-select (1–20 photos).
-- Slides are created in selection order, each with a centered Crop.
-- Default Aspect Ratio: 4:5. The new Post is placed at the top of the Grid.
+### F-02 · Create a Post
+
+- "New post" opens the photo picker with multi-select, up to `MAX_SLIDES` photos (R-01).
+- Slides are created in selection order with centered Crops (R-03) and `DEFAULT_ASPECT_RATIO` (R-02).
+- The new Post is placed according to R-05.
 - **Done when** a 10-photo Carousel can be created in under 15 seconds from tapping "New post".
 
-### F3 — Post editor
-- Swipe through Slides at the Post's Aspect Ratio.
-- Thumbnail strip: reorder Slides with long-press drag, or "Move" with arrow buttons.
-- Add photos (respecting the 20-Slide limit), remove a Slide (Undo toast), Replace a Slide's photo keeping position and Crop.
-- Share a single Slide's **original** photo to another app (e.g. Snapseed).
-- Switch Aspect Ratio between 1:1, 4:5 and 3:4; every Slide follows (ADR-0006).
-- Removing the last Slide deletes the Post (to Trash).
-- Slides are previewed at Export Quality (1080 px wide, rendered from original + Crop), so the editor shows what Instagram will show. The original is used only for reframing and for sharing the original to other apps.
-- **Done when** every action above is reachable with one hand on a 6" screen and is reflected immediately in the Grid.
+### F-03 · Post editor
 
-### F4 — Reframe a Slide
-- Opens from the editor. Drag to position, pinch to zoom; desktop uses drag + wheel/slider.
-- The photo always covers the frame (no empty edges).
-- The Crop is stored per Aspect Ratio; switching ratio and back restores it.
-- Rotate in 90° steps. The Crop model stores rotation in degrees from day one, so free-angle straightening (later phase) needs no data migration.
+- Swipe through Slides, previewed at Export Quality (R-12), so the editor shows what Instagram will show.
+- Thumbnail strip: reorder Slides with long-press drag, or with "Move" and arrow buttons.
+- Add photos (R-01), remove a Slide with Undo (ADR-0010), and Replace a Slide's photo keeping its position and Crop.
+- Share a Slide's **original** photo to another app (for example Snapseed); the original is used only for reframing and this action.
+- Switch the Aspect Ratio between 1:1, 4:5 and 3:4; every Slide follows (R-02) and keeps its Crop per ratio (R-03).
+- Removing the last Slide applies R-08.
+- **Done when** every action above is reachable one-handed on a 6-inch screen and is reflected immediately in the Grid.
 
-### F5 — Reorder the Grid
+### F-04 · Reframe a Slide
+
+- Opens from the editor. Drag to position and pinch to zoom; on desktop, drag plus wheel or slider.
+- Rotate in 90° steps. Free-angle straightening is a later phase (ROADMAP).
+- The photo always covers the frame (R-03).
+- **Done when** switching ratio and back restores the exact framing, rotation included.
+
+### F-05 · Reorder the Grid
+
 - Long-press a Post and drag it to a new position.
-- Accessible alternative: tap a Post → "Move" → buttons to move one position or one row; keyboard arrows on desktop.
-- Published Posts cannot be moved and Planned Posts cannot be moved below them.
+- Accessible alternative: tap a Post, choose "Move", then buttons to move one position or one row; keyboard arrows on desktop.
+- Moves respect R-05.
+- **Done when** both methods produce the same result and are covered by end-to-end tests.
 
-### F6 — Share Handoff and publishing state
-- "Share" on a Planned Post renders every Slide at Export Quality (1080 px wide, JPEG, sRGB, high quality) in Slide order and opens the share sheet with all files.
-- Fallback: download the files, numbered in order (`01.jpg`, `02.jpg`…).
-- On return, Griddy asks "Did you publish it?"; "Yes" marks the Post as Published.
-- A Published Post can be returned to Planned ("Mark as planned") to fix mistakes.
-- **Done when** a 10-Slide Carousel reaches Instagram's post composer with all photos in the correct order (see Risk R1).
+### F-06 · Share Handoff and publishing state
 
-### F7 — Delete, Undo and Trash (ADR-0010)
-- Deleting a Post is immediate with an Undo toast (5 seconds).
-- Deleted Posts go to Trash, restorable for 30 days, purged automatically afterwards.
-- "Empty trash" deletes permanently after one confirmation (the only confirmation dialog in the app).
+- "Share" on a Planned Post renders every Slide at Export Quality (R-12) as high-quality sRGB JPEG and opens the share sheet with all files.
+- Fallback: download the files numbered in Slide order (`01.jpg`, `02.jpg`…).
+- On return, Griddy asks whether the Post was published and applies R-07. "Mark as planned" reverts it.
+- **Done when** a 10-Slide Carousel reaches Instagram's composer with all photos in the correct order (pending P-01).
 
-### F8 — Post history (ADR-0010)
-- Every change to a Post records a Snapshot with timestamp and a short label ("Reordered slides", "Changed to 1:1").
-- The history lists Snapshots newest first, with a preview; restoring one records a new Snapshot, so restores are undoable.
-- Retention: 30 days or the last 50 Snapshots per Post, whichever keeps more.
+### F-07 · Delete, Undo and Trash
 
-### F9 — Storage (ADR-0008)
-- All data in IndexedDB; photos stored once and never modified.
-- Persistent storage is requested when the first photo is added; the result is shown in Settings.
-- Settings shows storage used (photos, history, trash).
+- Deleting a Post applies R-09: immediate, with Undo, then Trash, then purge.
+- "Empty trash" deletes permanently after one confirmation, the only confirmation dialog in the app.
+- **Done when** a deleted Post can be restored from the Undo toast and from the Trash, back to its previous state.
 
-### F10 — Backup
-- "Export backup" produces one file containing all data and original photos.
+### F-08 · Post history
+
+- Every change records a Snapshot (R-10) with a timestamp and a short label ("Reordered slides", "Changed to 1:1").
+- The history lists Snapshots newest first, with a preview; restoring one is itself undoable (R-10).
+- **Done when** each change type listed in ADR-0010 produces a Snapshot that restores correctly.
+
+### F-09 · Storage
+
+- All data stays on the device; Photos are stored once (R-11).
+- Persistent storage is requested when the first photo is added; the result is shown in Settings (S-04).
+- Settings shows storage used by Photos, history and Trash.
+
+### F-10 · Backup
+
+- "Export backup" produces one file with all data and original Photos.
 - "Import backup" restores it, replacing current data after one confirmation.
-- A backup made on one device can be imported on any other device running Griddy (e.g. phone → desktop via Google Drive). This is a copy, not sync: later changes on either device do not merge.
-- **Done when** export → clear site data → import yields an identical Grid, Trash and history.
+- A backup made on one device can be imported on another (for example phone to desktop through Google Drive). It is a copy, not sync: later changes on either device do not merge.
+- **Done when** export, clear site data, import yields an identical Grid, Trash and history.
 
-### F11 — Themes (ADR-0013)
-- Darkroom theme (light and dark) and one built-in alternative.
-- Theme picker; light/dark follows the system by default with a manual override.
-- All themes pass WCAG 2.2 AA contrast.
+### F-11 · Themes
 
-### F12 — Installable PWA (ADR-0011)
-- Installable to the home screen, launches full screen, works fully offline after the first visit.
+- Darkroom theme (light and dark) and one built-in alternative (ADR-0013).
+- Theme picker; light or dark follows the system by default, with a manual override.
+- **Done when** every theme passes WCAG 2.2 AA contrast.
+
+### F-12 · Installable PWA
+
+- Installable to the home screen, launches full screen and works offline after the first visit (ADR-0011).
 
 ---
 
@@ -94,21 +107,21 @@ Plan an Instagram grid of photo Posts and Carousels on an Android phone, see an 
 
 | Area | Requirement |
 |---|---|
-| Accessibility | WCAG 2.2 AA; 44 px touch targets; drag alternatives; screen-reader labels; reduced motion (see design principles). |
-| Privacy | No accounts, analytics or network calls beyond loading the app. Photos never leave the device except through Share Handoff or Backup. |
-| Performance | Grid uses small generated thumbnails, never full-resolution originals. App interactive in under 2 s on a mid-range phone after first load. |
-| Quality | CI gates: typecheck, lint, unit and integration tests, end-to-end tests, accessibility checks (see testing strategy). |
+| Accessibility | WCAG 2.2 AA; 44 px touch targets; drag alternatives; screen-reader labels; reduced motion ([design principles](design-principles.md)). |
+| Privacy | No accounts, analytics or network calls beyond loading the app. Photos leave the device only through Share Handoff or Backup (ADR-0008). |
+| Performance | The Grid uses small generated thumbnails, never originals. The app is interactive in under 2 seconds on a mid-range phone after the first load. |
+| Quality | CI gates described in the [testing strategy](testing-strategy.md). |
 
 ## Out of scope for Phase 1
 
-Video, Reels, Instagram API (sync and publishing), import of existing Published Posts, multiple Profiles, custom theme editor, captions and hashtags, scheduling, cloud sync.
+Video and Reels (ADR-0001), Instagram API sync and publishing (ADR-0003), import of Published Posts (ADR-0007), multiple Profiles (ADR-0004), custom theme editor and free-angle straightening (ROADMAP), captions and hashtags, scheduling, cloud sync.
 
-## Risks to verify first
+## Pending items that affect this phase
 
-- **R1 — Multi-photo share into Instagram.** Whether Instagram on Android accepts several images from the web share sheet as one Carousel, and keeps their order, must be tested on a real phone before building F6 in full. Fallback: share one at a time in order, or numbered downloads.
-- **R2 — Storage eviction.** Behavior of persistent storage on the owner's phone and browser; mitigated by Backup.
-- **R3 — Large photos.** Memory use when rendering 20 full-resolution photos for export on a mid-range phone; render sequentially.
+P-01 (multi-photo share), P-03 (new Post placement), P-04 (testing review) and P-05 (storage persistence), described in the [model document](model.md), section 10.
 
-## Revisit later
+## Changes
 
-- Whether new Posts go to the top of the Grid or next to the Next Post (owner unsure; top chosen for now).
+| Version | Date | Change | Reason |
+|---|---|---|---|
+| 0.1 | 2026-10-23 | Features renumbered F-01 to F-12; values replaced by parameter names; rules, risks and open questions moved to the model document and cited | Set up SDD documentation |

@@ -1,4 +1,6 @@
-# Testing Strategy (draft, pending review)
+# Testing Strategy
+
+General approach to testing. The concrete test list (`PR-xx`) lives in the [SDD](sdd.md), section 9. This strategy is pending owner review (P-04).
 
 ## Layers
 
