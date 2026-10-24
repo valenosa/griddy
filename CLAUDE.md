@@ -8,6 +8,15 @@ Read, in order: [docs/README.md](docs/README.md), [CONTEXT.md](CONTEXT.md), [doc
 
 Chat history is not a source. Anything decided in a conversation is written into the right document before it is used.
 
+## Before every task, read the source
+
+Never work from memory of the docs, even within the same session: they may have changed, and recollection drifts.
+
+1. Identify what the task touches: features (`F-xx`), rules (`R-xx`), parameters, ADRs and SDD sections. Use the SDD traceability matrix and search (`grep`) to find them.
+2. Re-read those passages in the files before planning or writing code.
+3. State in the plan which identifiers the work implements, and cite them in commit messages and in the header comment of each module.
+4. If the docs do not answer a question the task raises, do not fill the gap by guessing: ask, or propose a documented decision.
+
 ## Documentation is always kept in sync
 
 Griddy follows Spec-Driven Development: changes flow **model → SDD → code**.
