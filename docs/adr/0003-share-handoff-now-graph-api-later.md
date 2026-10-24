@@ -15,5 +15,5 @@ Direct publishing is one of the most valuable features for the owner. Automatic 
 ## Consequences
 
 - The PoC still removes the main pain point (finding the photos again).
-- The API phase introduces a backend and cloud media hosting; storage design must allow that transition (see storage ADR, pending).
+- The API phase introduces a backend and cloud media hosting; storage design must allow that transition (see ADR-0008).
 - Unofficial methods (scraping, private APIs, password sharing) are explicitly rejected: they break Instagram's terms and risk the account.
